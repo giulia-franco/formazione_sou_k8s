@@ -1,0 +1,88 @@
+# Installing Doker on Roky Linux
+
+- hosts: all
+  become: true    # Run with elevated privileges (sudo)
+  tasks:
+
+# Update system package list
+   - name: Aggiornare la lista dei pacchetti
+     package:
+        update_cache: yes     # Update the cache of available packages
+
+# Check and install pip if not present   
+   - name: Assicura che pip sia installato
+     package:  
+        name: python3-pip     # Install pip for Python 3
+        state: present        # Verify pip is installed
+
+# Install the Python 'request' module to handle HTTP requests
+   - name: Installa modulo Python 'requests'
+     pip:
+        name: requests        # Install the 'request' module
+
+# Add the official Docker repository
+   - name: Aggiungi repo Docker su Rocky
+     get_url:       
+        url: https://download.docker.com/linux/centos/docker-ce.repo        # Docker repo URL       
+        dest: /etc/yum.repos.d/docker-ce.repo        # Save the repo in the config directory
+     when: ansible_os_family == "RedHat"        # It only runs on RedHat based systems
+
+# Docker Installation on Rocky Linux 9 VM
+   - name: Installa Docker su Rocky
+     dnf:
+        name:
+          - docker-ce        # Docker Service Name
+          - docker-ce-cli        # Install Docker CLI
+          - containerd.io        # Install containerd
+        state: present        # Verify that packages are installed
+     when: ansible_os_family == "RedHat"        # It only runs on RedHat based systems
+
+# Enable Docker to start automatically on boot
+   - name: Abilitare Docker all'avvio
+     systemd:
+        name: docker        # Docker Service Name
+        enabled: yes        # Enable the service to start automatically
+        state: started        # Start Docker service
+
+# Check Docker installation
+   - name: Verifica che Docker sia in esecuzione
+     command: docker --version        # Check your Docker version to make sure it is installed correctly
+     register: docker_version        # Record the command output for later use
+     changed_when: false        # Do not report as change, just check the output
+
+# Docker Network creation
+   - name: Creazione Docker network
+     docker_network:
+      name: Docker_network        # Docker network name
+      driver: bridge        # Use a bridge network for communication between containers 
+      ipam_config:
+      - subnet: 172.3.27.0/24        # Defines the subnet for the Docker network
+
+# Jenkins Master Container Creation with Static IP 
+   - name: Creazione container Jenkins master con ip statico
+     community.docker.docker_container:
+      name: Jenkins_Master_Container        # Jenkins Master container name
+      image: jenkins/jenkins:lts        # Jenkins Docker Image
+      state: started        # Check that the container is started
+      restart_policy: always        # Automatically restart the container if it crashes
+      ports: 
+      - "8080:8080"        # Jenkins Web Access Port 8080
+      - "50000:50000"        # Port 5000 for communication with Jenkins agents
+      networks:
+      - name: Docker_network        # Associate the container with the Docker network
+        ipv4_address: "172.3.27.7"        # Set a static IP address to the Jenkins Master container
+
+# Creating Containers with Jenkins Agent with Static IP
+   - name: Creazione container jenkins agent
+     community.docker.docker_container:
+      name: Jenkins_Agent_Container        # Jenkins Agent container name
+      image: jenkins/inbound-agent:latest        # Jenkins Agent Docker Image
+      state: started        # Check that the container is started
+      restart_policy: always        # Automatically restart the container if it crashes
+      networks:
+      - name: Docker_network        # Associate the container with the Docker network
+        ipv4_address: "172.3.27.8"        # Set a static IP address to the Jenkins Agent container
+      env:
+        JENKINS_URL: "http://192.168.33.50:8080/"        # Jenkins Master Server URL
+        JENKINS_SECRET: "fb5c2acf6e054e3d090266cdb50b4f548a286259afd925fb9f4bc2146444e380"        # Agent authentication Secret
+        JENKINS_AGENT_NAME: "Agent"        # Name of the Agent container to register on Jenkins Master
