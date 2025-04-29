@@ -6,8 +6,8 @@ Successivamente, viene configurata una rete Docker, installato un container **Je
 L'Agent si collega al Master per eseguire le pipeline Jenkins.
 
 ## Requisiti
-- **[VirtualBox]**(https://www.virtualbox.org/)
-- **[Vagrant]**(https://www.vagrantup.com/)
+- **[VirtualBox](https://www.virtualbox.org/)** - per la virtualizzazione
+- **[Vagrant](https://www.vagrantup.com/)** - per la gestione e il provisioning della VM
 - **Docker** – per eseguire i container 
 - **Ansible** - per automatizzare l'installazione e configurazione di Docker e Jenkins
 
