@@ -1,0 +1,70 @@
+pipeline{
+    agent any
+    environment{
+        GIT_URL = 'https://github.com/giulia-franco/formazione_sou_k8s'
+        DOCKER_PATH= './Pipeline_jenkins/Dockerfile'
+        IMAGE_NAME = 'my_image'
+        IMAGE_TAG = 'latest'
+        DOCKER_CREDENTIALS = 'DOCKER_CREDENTIALS'
+    }
+    stages{
+        stage('clona repo git'){
+            steps {
+                git url: "${GIT_URL}", branch: 'main'
+            }
+        }
+
+        stage ('controllo tag'){
+            steps{
+                script{
+                    //ottiene il tag più recente del repo
+                    def gitTag = sh(script: 'git describe --tags --abbrev=0 || echo "no-tag"', returnStdout: true).trim()
+                    //ottine eil nome del branch 
+                    def branchName = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+                    if (gitTag != 'no-tag') {
+                        env.IMAGE_TAG = gitTag}
+                     else if (branchName == 'master') {
+                        env.IMAGE_TAG = 'latest'}                
+                    else if (branchName == 'develop') {
+                        def commitSHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                        env.IMAGE_TAG = "develop-${commitSHA}"}               
+                    else {
+                        env.IMAGE_TAG = 'latest'
+                    }
+                }
+            }
+        }
+
+        stage('mostra elenco file'){
+            steps {
+                sh 'ls -la'
+            }
+        }
+
+        stage('Costruisci l\'immagine Docker') {
+            steps {
+                script {
+                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}", './Pipeline_jenkins')
+                }
+            }
+        }
+
+        stage ('login Docker Hub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                    }
+                }
+            }
+        }
+        stage('push Docker image') {
+            steps{
+                script{
+                    sh 'docker tag ${IMAGE_NAME}:${IMAGE_TAG} giulia005/docker_hub_giulia:${IMAGE_TAG}'
+                    sh 'docker push giulia005/docker_hub_giulia:${IMAGE_TAG}'
+                }
+            }
+        }
+    }
+}

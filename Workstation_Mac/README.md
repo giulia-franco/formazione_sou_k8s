@@ -21,7 +21,8 @@ L'Agent si collega al Master per eseguire le pipeline Jenkins.
     - Installazione di Docker su Roky Linux 9.
     - Creare una rete Docker.
     - Creazione di un container Jenkins Master con IP statico.
-    - Creazione di un container Jenkins Agent con IP statico
+    - Creazione di un container Jenkins Agent con IP statico.
+    
 
 ---
 
