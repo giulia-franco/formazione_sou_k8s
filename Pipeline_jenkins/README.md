@@ -14,9 +14,9 @@ in base al **branch/tag Git**.
 - README.md: Questo file.
 
 ### Gestione dei tag Git
-- se l'immagine è "buildata" da un tag Git: il tag Docker sarà uguale al tag Git
-- se l'immagine è "buildata" dal branch master: il tag Docker sarà "latest"
-– se l'immagine è "buildata" dal branch develope: il tag Docker sarà "develop" seguito dal commit SHA
+- Se l'immagine è "buildata" da un tag Git: il tag Docker sarà uguale al tag Git
+- Se l'immagine è "buildata" dal branch master: il tag Docker sarà "latest"
+- Se l'immagine è "buildata" dal branch develope: il tag Docker sarà "develop" seguito dal commit SHA
 
 ### Link utili
 - https://docs.docker.com/
