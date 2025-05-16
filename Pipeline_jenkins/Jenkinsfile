@@ -13,7 +13,6 @@ pipeline{
                 git url: "${GIT_URL}", branch: 'main'
             }
         }
-
         stage ('controllo tag'){
             steps{
                 script{
@@ -34,13 +33,11 @@ pipeline{
                 }
             }
         }
-
         stage('mostra elenco file'){
             steps {
                 sh 'ls -la'
             }
         }
-
         stage('Costruisci l\'immagine Docker') {
             steps {
                 script {
@@ -48,7 +45,6 @@ pipeline{
                 }
             }
         }
-
         stage ('login Docker Hub') {
             steps {
                 script {
