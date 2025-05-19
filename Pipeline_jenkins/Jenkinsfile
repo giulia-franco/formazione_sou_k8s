@@ -1,6 +1,5 @@
 pipeline {
     agent any
-
     environment {
         GIT_URL = 'https://github.com/giulia-franco/formazione_sou_k8s'
         DOCKER_PATH = './Pipeline_jenkins'
@@ -9,13 +8,11 @@ pipeline {
         DOCKER_CREDENTIALS = 'DOCKER_CREDENTIALS'
         RAMO = " "
     }
-
     parameters {
         choice(name: 'type', choices: ['branch main', 'branch develop', 'tag'], description: 'Select branch or tag')
         string(name: 'value', defaultValue: '', description: 'Enter the tag value (if type is tag)')
     }
     stages {
-        // Fase di selezione del branch/tag
         stage("Selezione Branch/Tag") {
             steps {
                 script {
@@ -56,13 +53,11 @@ pipeline {
                 }
             }
         }
-        // Mostrare l'elenco dei file 
         stage('Mostra Elenco File') {
             steps {
                 sh "ls -la"
             }
         }
-        // Controllare e impostare il tag dell'immagine Docker
         stage('Controllo e Impostazione del Tag Docker') {
             steps {
                 script {
@@ -78,7 +73,6 @@ pipeline {
                 }
             }
         }
-        // Costruire l'immagine Docker
         stage('Costruisci Immagine Docker') {
             steps {
                 script {
@@ -87,7 +81,6 @@ pipeline {
                 }
             }
         }
-        // Login su Docker Hub
         stage('Login Docker Hub') {
             steps {
                 script {
@@ -97,7 +90,6 @@ pipeline {
                 }
             }
         }
-        // Push dell'immagine su Docker Hub
         stage('Push Immagine Docker') {
             steps {
                 script {
