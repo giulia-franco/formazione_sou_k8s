@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         GIT_URL = 'https://github.com/giulia-franco/formazione_sou_k8s'
-        DOCKER_PATH = './Pipeline_jenkins/Dockerfile'  // Assicurati che il Dockerfile sia in questa cartella
+        DOCKER_PATH = './Pipeline_jenkins'
         IMAGE_NAME = 'my_image'
         IMAGE_TAG = 'latest'
         DOCKER_CREDENTIALS = 'DOCKER_CREDENTIALS'
@@ -14,9 +14,7 @@ pipeline {
         choice(name: 'type', choices: ['branch main', 'branch develop', 'tag'], description: 'Select branch or tag')
         string(name: 'value', defaultValue: '', description: 'Enter the tag value (if type is tag)')
     }
-
     stages {
-
         // Fase di selezione del branch/tag
         stage("Selezione Branch/Tag") {
             steps {
@@ -36,14 +34,21 @@ pipeline {
                 }
             }
         }
-
-        // Clonare la repository Git dal branch/tag scelto
+        stage('Pulizia workspace') {
+            steps {
+                cleanWs()
+            }
+        }
         stage('Clona repository Git') {
             steps {
                 script{
                     if ("${type}" == "tag" && "${value}"){
-                        echo "clonazione del tag:${RAMO}"
-                        sh "git checkout ${RAMO}"}
+                        echo "clonazione con il tag ${value}"
+                        checkout ([
+                            $class: 'GitSCM',
+                            branches: [[name: "refs/tags/${value}"]],
+                            userRemoteConfigs:[[url: "${GIT_URL}"]]
+                        ])}
                     else{
                         echo "Clonazione del branch: ${RAMO}"
                         git url: "${GIT_URL}", branch: "${RAMO}"
@@ -51,7 +56,12 @@ pipeline {
                 }
             }
         }
-
+        // Mostrare l'elenco dei file 
+        stage('Mostra Elenco File') {
+            steps {
+                sh "ls -la"
+            }
+        }
         // Controllare e impostare il tag dell'immagine Docker
         stage('Controllo e Impostazione del Tag Docker') {
             steps {
@@ -68,14 +78,6 @@ pipeline {
                 }
             }
         }
-
-        // Mostrare l'elenco dei file per debug (opzionale)
-        stage('Mostra Elenco File') {
-            steps {
-                sh "ls -la"
-            }
-        }
-
         // Costruire l'immagine Docker
         stage('Costruisci Immagine Docker') {
             steps {
@@ -85,7 +87,6 @@ pipeline {
                 }
             }
         }
-
         // Login su Docker Hub
         stage('Login Docker Hub') {
             steps {
@@ -96,7 +97,6 @@ pipeline {
                 }
             }
         }
-
         // Push dell'immagine su Docker Hub
         stage('Push Immagine Docker') {
             steps {
