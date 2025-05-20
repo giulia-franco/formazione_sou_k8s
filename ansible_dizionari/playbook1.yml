@@ -1,0 +1,17 @@
+- name: Gestione pacchetti da dizionario
+  hosts: all
+  become: true
+  vars:
+    packages:
+      vim: present
+      nano: absent
+      git: present
+      tree: absent
+
+  tasks:
+    - name: Gestione pacchetti installati
+      package:
+        name: "{{ item.key }}"
+        state: "{{ item.value }}"
+      loop: "{{ packages | dict2items }}"
+

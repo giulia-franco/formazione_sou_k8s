@@ -1,0 +1,35 @@
+- name: creazione lista di utenti usando le specifiche contenute in un alista dictionary
+  hosts: all
+  become: true
+  vars:
+    user_list:
+      - name: mario
+        group: developers
+        shell: /bin/bash
+        home: /home/mario
+      - name: lucia
+        group: testers
+        shell: /bin/zsh
+        home: /home/lucia
+      
+  tasks:
+    - name: Assicurarsi che il gruppo esista
+      group:
+        name: "{{ item.group }}"
+        state: present
+      loop: "{{ user_list }}"
+      loop_control:
+        label: "{{ item.group }}"
+
+    - name: Creazione utenti
+      user:
+        name: "{{ item.name }}"
+        group: "{{ item.group }}"
+        shell: "{{ item.shell }}"
+        home: "{{ item.home }}"
+        state: present
+        create_home: yes
+      loop: "{{ user_list }}"
+      loop_control:
+        label: "{{ item.name }}"
+      
