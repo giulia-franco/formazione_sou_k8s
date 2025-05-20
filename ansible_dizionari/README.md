@@ -4,7 +4,7 @@
 ### Obiettivo
 Creare un playbook Ansible che installi/disinstalli una lista di pacchetti in base a quanto definito in un apposito dictionary.
 ### Funzionamento
-Questo playbook installa o disistalla una lista di pacchetti in base a quanto definito nel dictionary.
+Questo playbook installa o disinstalla una lista di pacchetti in base a quanto definito nel dictionary.
 
 ![alt text](image.png)
 ### Spiegazione
