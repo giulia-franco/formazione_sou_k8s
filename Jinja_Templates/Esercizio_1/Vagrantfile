@@ -20,5 +20,9 @@ Vagrant.configure("2") do |config|
   config.vm.provision "ansible" do |ansible|
     ansible.compatibility_mode = "1.8"
     ansible.playbook = "playbook.yml"
+    ansible.extra_vars = {
+      env_type: "collaudo",       
+      target_user: "vagrant"        
+    }
   end
 end 

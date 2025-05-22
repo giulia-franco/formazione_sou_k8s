@@ -1,0 +1,16 @@
+- name: Configurare /etc/security/limits.conf in modo condizionale
+  hosts: all
+  become: yes
+  vars:
+    # Definiamo un valore di limite basato sull'ambiente
+    nofile_limit: "{{ '10000' if env_type == 'produzione' else '1000' }}"
+
+  tasks:
+    - name: Aggiungi limiti nofile a /etc/security/limits.conf
+      blockinfile:
+        path: /etc/security/limits.conf
+        marker: ""
+        block: |
+          {{ target_user }}    soft    nofile  {{ nofile_limit }}
+          {{ target_user }}    hard    nofile  {{ nofile_limit }}
+        marker: "# {mark} ANSIBLE MANAGED LIMITS for {{ target_user }}"
