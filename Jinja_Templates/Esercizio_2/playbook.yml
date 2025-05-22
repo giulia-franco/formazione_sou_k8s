@@ -1,0 +1,22 @@
+
+- name: Aggiungere utenti in whitelist
+  hosts: all
+  become: true      #esegue con i privilegi root
+  vars:
+    whitelist_users:
+      - user1
+      - user2
+      - user3
+      - user4
+
+  tasks:
+    - name: aggiungere account in whitelist prima dell'ultima riga
+      blockinfile:
+        path: /etc/security/access.conf
+        insertbefore: "#-:ALL:ALL"
+        marker: ""
+        block: |
+          {% for user in whitelist_users %}
+          + : {{ user }}:ALL
+          {% endfor %}
+ 
