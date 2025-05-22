@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+Vagrant.configure("2") do |config|
+  #box da usare (sistema operativo)
+  #nome vm
+  config.vm.box =  "Ubuntu/jammy64"
+  config.vm.hostname = "devops.everywhere"
+
+  #impostazioni di rete 
+  #assegnazione ip
+  config.vm.network "private_network", ip: "192.168.168.8"
+
+  #risorse vm
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "2048"
+    vb.cpus = 2
+  end
+
+  # Provision Ansible 
+  config.vm.provision "ansible" do |ansible|
+    ansible.compatibility_mode = "1.8"
+    ansible.playbook = "playbook.yml"
+    ansible.extra_vars = {
+      ambiente: "sviluppo",      
+      target_user: "vagrant"  
+    }
+  end
+end 
