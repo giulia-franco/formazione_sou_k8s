@@ -1,0 +1,71 @@
+pipeline {
+  agent any
+
+  environment {
+    //KUBECONFIG = "${WORKSPACE}/.kube/config" 
+    GIT_URL = "https://github.com/giulia-franco/formazione_sou_k8s"
+    DOCKER_CREDENTIALS = 'DOCKER_CREDENTIALS'
+    KUBECONFIG = "/kubeconfig/config"
+  }
+
+
+  stages {
+    stage('Pulizia workspace') {
+        steps {
+            cleanWs()
+        }
+    }
+    stage('Test kubectl') {
+        steps {
+            withCredentials([file(credentialsId: 'KUBECONFIG_ID', variable: 'KUBECONFIG')]) {
+                sh '''
+                    echo "[INFO] KUBECONFIG: $KUBECONFIG"
+                    kubectl get pods
+                '''
+            }
+        }
+    }
+    stage('Check Docker') {
+        steps {
+            sh 'which docker || echo "Docker non trovato"'
+        }
+    }
+    stage('Clona repo') {
+      steps {
+        script{
+            sh "git clone ${GIT_URL}"
+        }
+      }
+    }
+    stage('mostra elenco file'){
+        steps {
+            script{
+                sh 'ls -la'
+            }
+        }
+    }
+    stage('Login Docker Hub') {
+        steps {
+            script {
+                withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh "echo \"${DOCKER_PASS}\" | sudo docker login -u \"${DOCKER_USER}\" --password-stdin"
+                }
+            }
+        }
+    }
+    // stage('Lista helm') {
+    //     steps('Install Helm chart') {
+    //         sh "helm list"
+    //     }
+    // }
+    // stage('install') {
+    //         steps('Install Helm chart') {
+
+    //             sh "helm install ${NOME} /var/jenkins_home/workspace/helm-install/formazione_sou_k8s/charts/helm-chart -n formazione-sou --set image.tag=${TAG} "
+    //         }
+    //     }
+        }
+    }
+
+
+
