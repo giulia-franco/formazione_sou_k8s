@@ -1,8 +1,5 @@
 # Charts
-### Parte 1
-Creare un Helm Chart custom che effettui il deploy dell'immagine creata tramite la pipeline flask-app-example-build.
-
-### Parte 2
+### Obbiettivo
 Configurare il cluster Kubernetes, creato in locale, con Jenkins, in modo che possa raggiungere anche il namespace "formazione-sou"
 Scrivere pipeline dichiarativa Jenkins che prenda da GitHub il chart versionato in "formazione_sou_k8s" ed effettui "helm install" sull'istanza K8s locale su namespace "formazione-sou"
 
@@ -51,7 +48,7 @@ Questi comandi vengono utilizzati in una pipeline Jenkins rispettivamente per:
 ![alt text](install_helm_chart.png)
 
 ## Requisiti
-- Docker dekstop: running
+- Docker desktop: running
 - Jenkins master
 - Jenkins agent
 - VirtualBox installato
