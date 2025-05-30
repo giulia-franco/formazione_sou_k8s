@@ -1,38 +1,6 @@
-// pipeline {
-//   agent any
-//  environment {
-//     GIT_URL = "https://github.com/giulia-franco/formazione_sou_k8s" 
-//     DOCKER_CREDENTIALS = 'DOCKER_CREDENTIALS'
-//     KUBECONFIG = "/kubeconfig/config"
-//   }
-//     stage('Clona repo') {
-//       steps {
-//         script{
-//             git url: "${GIT_URL}"
-//         }
-//       }
-//     }
-//     stage('mostra elenco file'){
-//         steps {
-//             script{
-//                 sh 'ls -la'
-//             }
-//         } 
-//     }
-// }    
-//     stage('Lista helm') {
-//         steps('Install Helm chart') {
-//             sh "helm list"
-//             sh "helm install ${NOME} /home/jenkins/workspace/flask-app-example-build/charts/helm-chart -n formazione-sou --set image.tag=${TAG} "
-//             }
-//         }
-        
-
-
-
-
 pipeline {
     agent any
+
         environment {
         GIT_URL = "https://github.com/giulia-franco/formazione_sou_k8s" 
         NOME= "chart"
@@ -44,29 +12,15 @@ pipeline {
                 cleanWs(deleteDirs: true, patterns: [[pattern: '.kube', type: 'EXCLUDE']])
             }
         }
-        stage('Test kubectl') {
-            steps {
-                script{
-                    sh 'echo $HOME'
-                    sh 'kubectl --insecure-skip-tls-verify --kubeconfig $HOME/.kube/config get nodes'
-                }
-            }
-        }
         stage('Clona repo') {
             steps {
                 script{
                     git url: "${GIT_URL}", branch:"main"
+                    sh 'ls -la'
                 }
             }
         }
-        stage('mostra elenco file'){
-            steps {
-                script{
-                    sh 'ls -la'
-                }
-            } 
-        }
-        stage('Lista helm') {
+        stage('Helm') {
             steps('Install Helm chart') {
                 script{
                     sh "helm install --kube-insecure-skip-tls-verify ${NOME} /home/jenkins/workspace/flask-app-example-build/charts/helm-chart -n formazione-sou --set image.tag=${TAG} "
@@ -76,7 +30,3 @@ pipeline {
         }    
     }
 }
-
-
-
-
