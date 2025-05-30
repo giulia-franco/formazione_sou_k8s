@@ -1,71 +1,82 @@
+// pipeline {
+//   agent any
+//  environment {
+//     GIT_URL = "https://github.com/giulia-franco/formazione_sou_k8s" 
+//     DOCKER_CREDENTIALS = 'DOCKER_CREDENTIALS'
+//     KUBECONFIG = "/kubeconfig/config"
+//   }
+//     stage('Clona repo') {
+//       steps {
+//         script{
+//             git url: "${GIT_URL}"
+//         }
+//       }
+//     }
+//     stage('mostra elenco file'){
+//         steps {
+//             script{
+//                 sh 'ls -la'
+//             }
+//         } 
+//     }
+// }    
+//     stage('Lista helm') {
+//         steps('Install Helm chart') {
+//             sh "helm list"
+//             sh "helm install ${NOME} /home/jenkins/workspace/flask-app-example-build/charts/helm-chart -n formazione-sou --set image.tag=${TAG} "
+//             }
+//         }
+        
+
+
+
+
 pipeline {
-  agent any
-
-  environment {
-    //KUBECONFIG = "${WORKSPACE}/.kube/config" 
-    GIT_URL = "https://github.com/giulia-franco/formazione_sou_k8s"
-    DOCKER_CREDENTIALS = 'DOCKER_CREDENTIALS'
-    KUBECONFIG = "/kubeconfig/config"
-  }
-
-
-  stages {
-    stage('Pulizia workspace') {
-        steps {
-            cleanWs()
+    agent any
+        environment {
+        GIT_URL = "https://github.com/giulia-franco/formazione_sou_k8s" 
+        NOME= "chart"
+        TAG= "latest"
         }
-    }
-    stage('Test kubectl') {
-        steps {
-            withCredentials([file(credentialsId: 'KUBECONFIG_ID', variable: 'KUBECONFIG')]) {
-                sh '''
-                    echo "[INFO] KUBECONFIG: $KUBECONFIG"
-                    kubectl get pods
-                '''
+    stages {
+        stage('Pulizia workspace') {
+            steps {
+                cleanWs(deleteDirs: true, patterns: [[pattern: '.kube', type: 'EXCLUDE']])
             }
         }
-    }
-    stage('Check Docker') {
-        steps {
-            sh 'which docker || echo "Docker non trovato"'
-        }
-    }
-    stage('Clona repo') {
-      steps {
-        script{
-            sh "git clone ${GIT_URL}"
-        }
-      }
-    }
-    stage('mostra elenco file'){
-        steps {
-            script{
-                sh 'ls -la'
-            }
-        }
-    }
-    stage('Login Docker Hub') {
-        steps {
-            script {
-                withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh "echo \"${DOCKER_PASS}\" | sudo docker login -u \"${DOCKER_USER}\" --password-stdin"
+        stage('Test kubectl') {
+            steps {
+                script{
+                    sh 'echo $HOME'
+                    sh 'kubectl --insecure-skip-tls-verify --kubeconfig $HOME/.kube/config get nodes'
                 }
             }
         }
-    }
-    // stage('Lista helm') {
-    //     steps('Install Helm chart') {
-    //         sh "helm list"
-    //     }
-    // }
-    // stage('install') {
-    //         steps('Install Helm chart') {
-
-    //             sh "helm install ${NOME} /var/jenkins_home/workspace/helm-install/formazione_sou_k8s/charts/helm-chart -n formazione-sou --set image.tag=${TAG} "
-    //         }
-    //     }
+        stage('Clona repo') {
+            steps {
+                script{
+                    git url: "${GIT_URL}", branch:"main"
+                }
+            }
         }
+        stage('mostra elenco file'){
+            steps {
+                script{
+                    sh 'ls -la'
+                }
+            } 
+        }
+        stage('Lista helm') {
+            steps('Install Helm chart') {
+                script{
+                    sh "helm install --kube-insecure-skip-tls-verify ${NOME} /home/jenkins/workspace/flask-app-example-build/charts/helm-chart -n formazione-sou --set image.tag=${TAG} "
+                    sh "helm list --kube-insecure-skip-tls-verify"
+                }
+            }
+        }    
     }
+}
+
 
 
 
