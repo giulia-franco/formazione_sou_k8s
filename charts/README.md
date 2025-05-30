@@ -21,15 +21,15 @@ Un chart Helm è composto da diversi file e directory:
 
 ## Pipeline (jenkinsfile)
 ### Steps:
-1. Pulizia workspace: 
+### 1. Pulizia workspace: 
 
 ![alt text](step_pulizia_workspace.png)
 
-2. Clone repo git
+### 2. Clone repo git 
 
 ![alt text](clone_repo_git.png)
 
-3. Helm
+### 3. Helm
 
 ![alt text](install_helm_chart.png)
 
