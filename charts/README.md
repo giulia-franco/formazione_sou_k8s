@@ -59,3 +59,18 @@ Questi comandi vengono utilizzati in una pipeline Jenkins rispettivamente per:
 
 ## --insecure-skip-tls-verify
 Questo flag disabilita la verifica TLS, quindi non viene verificata la validità dei certificati.
+
+## check_deployment.sh
+### Descrizione 
+Questo script bash effettua un check per verificare che siano installati i seguenti attributi:
+- livenessProbe
+- readinessProbe
+- resources.limits
+- resources.requests
+
+### Funzionamento 
+1. Interroga il cluster Kubernetes tramite kubectl.
+2. Estrae il Deployment in formato JSON.
+3. Analizza  utilizzando il tool jq, specializzato nella manipolazione di dati JSON da linea di comando.
+4. Verifica la presenza di attributi obbligatori (livenessProbe, readinessProbe, resources.limits e resources.requests); per ogni attributo mancante, stampa un messaggio di errore.
+5. Esegue i controlli in parallelo, grazie all’uso dell’operatore &.
