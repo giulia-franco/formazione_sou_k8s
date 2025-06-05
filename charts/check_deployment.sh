@@ -5,14 +5,15 @@ DEPLOYMENT=prova2-charts
 NAMESPACE=default
 
 #deployment
-# /dev/null --> qualsiasi file inserito al suo interno viene scartato
-# 2>/dev/null: nasconde gli errori del comando 
+# /dev/null --> viene fatto un redirect su /dev/null
+# per evitare di vedere a schermo l'output del comando
+# 2>/dev/null: reindirizza gli errori del comando 
 DEPLOY_JSON=$(kubectl get deployment "$DEPLOYMENT" -n "$NAMESPACE" -o json 2>/dev/null)
 
 #check_field
 # check_field() --> dichiarazione funzione
 # jq --> tool per elaborare json
-# "$1" --> campo da verificare
+# "$1" --> rappresenta il primo parametro passato alla funzione
 check_field() {
   jq -e "$1" <<< "$DEPLOY_JSON" > /dev/null
 }
