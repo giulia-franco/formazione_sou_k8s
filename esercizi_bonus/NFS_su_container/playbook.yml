@@ -1,0 +1,8 @@
+- hosts: all
+  become: true    # Run con privilegi elevati (sudo)
+  tasks:
+
+# aggiornamento lista dei pacchetti
+   - name: Aggiornare la lista dei pacchetti
+     package:
+        update_cache: yes   
