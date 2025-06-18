@@ -43,7 +43,7 @@ Creare un Pod Nginx con la Http Basic Authentication abilitata.
 
 7. Creazione service
 
-![alt text](img/sevice.png)
+![alt text](img/service.png)
 
 8. Accesso con autenticazione
 
